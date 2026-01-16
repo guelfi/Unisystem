@@ -100,8 +100,15 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
+// Configure path base for reverse proxy
+app.UsePathBase("/unisystem-api");
+
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/unisystem-api/swagger/v1/swagger.json", "Unisystem API v1");
+    c.RoutePrefix = "swagger";
+});
 
 app.UseCors("AllowFrontend");
 app.UseAuthentication();
