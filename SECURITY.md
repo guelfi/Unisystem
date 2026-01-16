@@ -1,443 +1,189 @@
-# 🔐 SECURITY - Práticas de Segurança do Unisystem
+# 🔐 Segurança - Unisystem
 
-**Versão:** 1.0  
-**Data:** 16/01/2026
-
----
-
-## 📋 VISÃO GERAL
-
-Este documento descreve as práticas de segurança implementadas no projeto Unisystem, focando em simplicidade, eficácia e adequação ao contexto de um teste prático.
+Este documento descreve as práticas de segurança implementadas no projeto Unisystem.
 
 ---
 
-## 🎯 ABORDAGEM ESCOLHIDA
+## 🛡️ Práticas Implementadas
 
-### ✅ **Registro Aberto + JWT (RECOMENDADA PARA O TESTE)**
+### 1. Autenticação JWT
 
-**Por quê esta abordagem?**
-- ✅ Simples de implementar (tempo é importante no teste)
-- ✅ Segura e adequada ao contexto
-- ✅ Segue boas práticas da indústria
-- ✅ Facilita a avaliação pelo examinador
-- ✅ Não expõe credenciais no cliente
-
-**Fluxo:**
-1. Qualquer pessoa pode se registrar (POST /api/auth/register)
-2. Após registro, faz login (POST /api/auth/login) e recebe JWT
-3. Usa JWT para acessar endpoints protegidos
-4. Frontend protege rotas com Guards
-
----
-
-## 🔒 ESTRUTURA DE SEGURANÇA
-
-### 1. **Endpoints da API**
-
-#### Endpoints Públicos (sem autenticação)
-```
-POST /api/auth/register
-  - Cadastro de novo usuário
-  - Valida e-mail único
-  - Hash de senha com BCrypt
-  
-POST /api/auth/login
-  - Autentica usuário
-  - Retorna JWT token
-  - Token válido por 8 horas
-```
-
-#### Endpoints Protegidos (requer JWT)
-```
-GET /api/users
-  - Lista todos os usuários
-  - Requer: Authorization: Bearer {token}
-  
-GET /api/users/{id}
-  - Obtém usuário específico
-  - Requer: Authorization: Bearer {token}
-```
-
-### 2. **Autenticação JWT**
-
-#### Configuração do Token
-```csharp
-// appsettings.json (valores vêm do .env)
-{
-  "Jwt": {
-    "Secret": "[MIN 32 CARACTERES]",
-    "Issuer": "Unisystem",
-    "Audience": "UnisystemApp",
-    "ExpirationHours": 8
-  }
-}
-```
-
-#### Estrutura do Token JWT
-```json
-{
-  "sub": "user-id",
-  "email": "user@example.com",
-  "name": "User Name",
-  "exp": 1234567890,
-  "iss": "Unisystem",
-  "aud": "UnisystemApp"
-}
-```
-
-#### Validação no Backend
-```csharp
-services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = configuration["Jwt:Issuer"],
-            ValidAudience = configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(configuration["Jwt:Secret"])
-            )
-        };
-    });
-```
-
-### 3. **Proteção de Senhas**
-
-#### Hash com BCrypt
-```csharp
-// Ao cadastrar
-string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
-
-// Ao validar login
-bool isValid = BCrypt.Net.BCrypt.Verify(password, hashedPassword);
-```
+**Implementação:**
+- Tokens JWT assinados com chave secreta (HS256)
+- Expiração de 8 horas
+- Token incluído automaticamente via HTTP Interceptor (frontend)
+- Validação em todos os endpoints protegidos
 
 **Configuração:**
-- WorkFactor: 12 (padrão)
-- Salt gerado automaticamente
-- Hashes únicos mesmo para senhas iguais
-
-### 4. **Proteção no Frontend**
-
-#### HTTP Interceptor (envio automático de token)
-```typescript
-// src/app/core/interceptors/auth.interceptor.ts
-export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const token = localStorage.getItem('token');
-  
-  if (token) {
-    req = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+```json
+{
+  "Jwt": {
+    "Key": "[chave-secreta-256-bits]",
+    "Issuer": "Unisystem",
+    "Audience": "UnisystemApp",
+    "ExpiresInHours": 8
   }
-  
-  return next(req);
-};
-```
-
-#### Route Guards (proteção de rotas)
-```typescript
-// src/app/core/guards/auth.guard.ts
-export const authGuard: CanActivateFn = (route, state) => {
-  const authService = inject(AuthService);
-  const router = inject(Router);
-  
-  if (authService.isAuthenticated()) {
-    return true;
-  }
-  
-  // Redireciona para login se não autenticado
-  router.navigate(['/login'], {
-    queryParams: { returnUrl: state.url }
-  });
-  return false;
-};
-```
-
-#### Validação de Token
-```typescript
-// src/app/core/services/auth.service.ts
-isAuthenticated(): boolean {
-  const token = this.getToken();
-  if (!token) return false;
-  
-  // Verifica se token não expirou
-  const payload = this.decodeToken(token);
-  const now = Date.now() / 1000;
-  
-  return payload.exp > now;
 }
 ```
 
-### 5. **Estrutura de Rotas**
+**Claims no Token:**
+- `sub`: ID do usuário (GUID)
+- `email`: Email do usuário
+- `name`: Nome do usuário
+- `jti`: ID único do token
+- `exp`: Data de expiração
+- `iss`: Emissor (Unisystem)
+- `aud`: Audiência (UnisystemApp)
 
-#### Públicas (sem proteção)
-```typescript
-const routes: Routes = [
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
-  // ...
-];
-```
+---
 
-#### Protegidas (com Guard)
-```typescript
-const routes: Routes = [
-  {
-    path: 'users',
-    component: UsersListComponent,
-    canActivate: [authGuard]
-  },
-  // ...
-];
+### 2. Hash de Senhas
+
+**Implementação:**
+- BCrypt.Net para hash de senhas
+- Custo de trabalho: 12 (padrão)
+- Senhas NUNCA armazenadas em texto plano
+- PasswordHash não retornado nas respostas da API
+
+**Exemplo de uso:**
+```csharp
+// Gerar hash ao cadastrar
+string passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
+
+// Verificar ao fazer login
+bool isValid = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
 ```
 
 ---
 
-## 🔐 GESTÃO DE CREDENCIAIS
+### 3. Validação de Dados
 
-### 1. **Variáveis de Ambiente**
+**Backend - FluentValidation:**
+- Email obrigatório e formato válido
+- Senha obrigatória com mínimo de 6 caracteres
+- Nome obrigatório
 
-#### Backend (.env) - NUNCA COMMITAR
-```bash
-# JWT Configuration
-JWT_SECRET=sua_chave_super_secreta_aqui_minimo_32_caracteres_alfanumericos
-JWT_ISSUER=Unisystem
-JWT_AUDIENCE=UnisystemApp
-JWT_EXPIRATION_HOURS=8
-
-# Database
-DATABASE_PATH=./database/unisystem.db
-
-# Environment
-ASPNETCORE_ENVIRONMENT=Development
-```
-
-#### Backend (.env.example) - COMMITAR
-```bash
-# JWT Configuration
-JWT_SECRET=your_secret_key_here_minimum_32_characters
-JWT_ISSUER=Unisystem
-JWT_AUDIENCE=UnisystemApp
-JWT_EXPIRATION_HOURS=8
-
-# Database
-DATABASE_PATH=./database/unisystem.db
-
-# Environment
-ASPNETCORE_ENVIRONMENT=Development
-```
-
-#### Frontend (environment.ts)
-```typescript
-// src/environments/environment.ts
-export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:5000/api'
-  // ⚠️ NUNCA coloque secrets/tokens aqui!
-  // Apenas configurações públicas (URLs)
-};
-```
-
-### 2. **.gitignore Obrigatório**
-
-```gitignore
-# Credenciais e configurações sensíveis
-.env
-.env.local
-.env.production
-*.env
-
-# Banco de dados
-*.db
-*.db-shm
-*.db-wal
-database/
-
-# Logs
-logs/
-*.log
-
-# Certificados
-*.pfx
-*.p12
-*.key
-*.pem
-```
-
-### 3. **Docker Compose (Produção)**
-
-```yaml
-# docker-compose.yml
-version: '3.8'
-
-services:
-  api:
-    build: ./backend
-    environment:
-      - JWT_SECRET=${JWT_SECRET}
-      - JWT_ISSUER=${JWT_ISSUER}
-      - JWT_AUDIENCE=${JWT_AUDIENCE}
-    env_file:
-      - .env  # Arquivo não commitado
-    ports:
-      - "5000:80"
-```
+**Frontend - Reactive Forms:**
+- Validação em tempo real
+- Feedback visual de erros
+- Botões desabilitados enquanto formulário inválido
 
 ---
 
-## ✅ VALIDAÇÕES DE SEGURANÇA
+### 4. Proteção de Rotas
 
-### 1. **Validação de Entrada (Backend)**
+**Frontend - Auth Guard:**
+- Rota `/users` protegida por autenticação
+- Redirecionamento automático para `/login` se não autenticado
+- Verificação de token no localStorage
 
+**Backend - [Authorize]:**
+- Endpoints protegidos com atributo `[Authorize]`
+- Retorna 401 Unauthorized sem token válido
+
+---
+
+### 5. CORS
+
+**Configuração:**
+- Permite requisições de `http://localhost:5001` (desenvolvimento)
+- Métodos permitidos: GET, POST, PUT, DELETE
+- Headers permitidos: Content-Type, Authorization
+
+**Para Produção:**
 ```csharp
-// FluentValidation
-public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
-{
-    public RegisterCommandValidator()
-    {
-        RuleFor(x => x.Email)
-            .NotEmpty()
-            .EmailAddress()
-            .MaximumLength(100);
-            
-        RuleFor(x => x.Password)
-            .NotEmpty()
-            .MinimumLength(6)
-            .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)")
-            .WithMessage("Senha deve conter maiúscula, minúscula e número");
-            
-        RuleFor(x => x.Name)
-            .NotEmpty()
-            .MinimumLength(3)
-            .MaximumLength(100);
-    }
-}
-```
-
-### 2. **Validação de E-mail Único**
-
-```csharp
-// No handler de registro
-var existingUser = await _context.Users
-    .FirstOrDefaultAsync(u => u.Email == request.Email);
-    
-if (existingUser != null)
-{
-    return Result.Failure("E-mail já cadastrado");
-}
-```
-
-### 3. **Proteção contra SQL Injection**
-
-✅ **Entity Framework Core** previne automaticamente:
-```csharp
-// EF Core usa parametrização automática
-var user = await _context.Users
-    .FirstOrDefaultAsync(u => u.Email == email);
-```
-
-### 4. **CORS (Cross-Origin Resource Sharing)**
-
-```csharp
-// Program.cs
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5001")
-              .AllowAnyHeader()
+        policy.WithOrigins("https://seu-dominio.com")
               .AllowAnyMethod()
-              .AllowCredentials();
+              .AllowAnyHeader();
     });
 });
-
-app.UseCors("AllowFrontend");
 ```
 
 ---
 
-## 🛡️ PROTEÇÕES IMPLEMENTADAS
+### 6. Validação de Email Único
 
-### ✅ Checklist de Segurança
-
-- [x] **Autenticação JWT**
-- [x] **Hash de senhas (BCrypt)**
-- [x] **Validação de entrada (FluentValidation)**
-- [x] **Proteção contra SQL Injection (EF Core)**
-- [x] **E-mail único validado**
-- [x] **Tokens com expiração**
-- [x] **CORS configurado**
-- [x] **Credenciais em variáveis de ambiente**
-- [x] **.gitignore protegendo .env**
-- [x] **HTTPS em produção (Docker)**
-- [x] **Route Guards no frontend**
-- [x] **HTTP Interceptors**
-- [x] **Validação de token no frontend**
+**Implementação:**
+- Verificação no banco antes de cadastrar
+- Índice único na coluna Email (SQLite)
+- Mensagem de erro apropriada: "E-mail já cadastrado"
 
 ---
 
-## 🚫 O QUE EVITAR
+## 📋 Checklist de Segurança
 
-### ❌ Práticas NÃO Recomendadas
+### ✅ Implementado
+- [x] JWT com assinatura e expiração
+- [x] Hash de senhas com BCrypt
+- [x] Validação de dados (backend e frontend)
+- [x] Proteção de rotas sensíveis
+- [x] CORS configurado
+- [x] Email único garantido
+- [x] Senhas nunca expostas nas respostas
 
-1. **NUNCA commitar .env com valores reais**
-2. **NUNCA colocar secrets no frontend**
-3. **NUNCA usar senhas em texto plano**
-4. **NUNCA confiar em validação apenas no frontend**
-5. **NUNCA expor detalhes de erro ao cliente**
-6. **NUNCA usar JWT sem expiração**
-7. **NUNCA armazenar senhas sem hash**
+### ⚠️ Recomendações para Produção
+
+1. **HTTPS Obrigatório**
+   - Configurar certificado SSL/TLS
+   - Redirecionar HTTP para HTTPS
+   - HSTS (HTTP Strict Transport Security)
+
+2. **Variáveis de Ambiente**
+   - Mover JWT Key para variável de ambiente
+   - Não commitar secrets no repositório
+   - Usar Azure Key Vault ou similar
+
+3. **Rate Limiting**
+   - Implementar limite de requisições por IP
+   - Proteção contra força bruta no login
+   - Throttling em endpoints sensíveis
+
+4. **Logging e Monitoramento**
+   - Log de tentativas de login falhas
+   - Monitoramento de tokens expirados
+   - Alertas de atividades suspeitas
+
+5. **Validações Adicionais**
+   - Complexidade de senha (letras, números, símbolos)
+   - Bloqueio de senhas comuns
+   - Captcha em formulários públicos
 
 ---
 
-## 📊 COMPARAÇÃO DE ABORDAGENS
+## 🔍 Testes de Segurança
 
-| Abordagem | Complexidade | Segurança | Adequação ao Teste |
-|-----------|--------------|-----------|-------------------|
-| **Registro Aberto + JWT** | ⭐ Baixa | ⭐⭐⭐ Alta | ✅ **ESCOLHIDA** |
-| Seed Usuário Admin | ⭐⭐ Média | ⭐⭐⭐ Alta | ✅ Alternativa |
-| Client ID/Secret | ⭐⭐⭐ Alta | ⭐⭐ Média | ❌ Desnecessário |
-| OAuth2 Externo | ⭐⭐⭐⭐ Muito Alta | ⭐⭐⭐⭐ Muito Alta | ❌ Excessivo |
+### Validações Testadas
+1. ✅ Login sem token retorna 401
+2. ✅ Email duplicado é rejeitado
+3. ✅ Senha hasheada não é exposta
+4. ✅ Token inválido é rejeitado
+5. ✅ Token expirado é rejeitado
+
+### Comandos de Teste
+```bash
+# Testar endpoint sem autenticação
+curl -X GET http://localhost:5000/api/users
+# Esperado: 401 Unauthorized
+
+# Testar com token válido
+curl -X GET http://localhost:5000/api/users \
+  -H "Authorization: Bearer {seu-token}"
+# Esperado: 200 OK com lista de usuários
+```
 
 ---
 
-## 🔍 TESTES DE SEGURANÇA
-
-### Cenários a Testar
-
-1. ✅ Tentar acessar `/api/users` sem token → 401 Unauthorized
-2. ✅ Tentar acessar `/api/users` com token inválido → 401 Unauthorized
-3. ✅ Tentar acessar `/api/users` com token expirado → 401 Unauthorized
-4. ✅ Cadastrar e-mail duplicado → 400 Bad Request
-5. ✅ Login com senha incorreta → 401 Unauthorized
-6. ✅ Acessar rota protegida no frontend sem login → Redirect para /login
-
----
-
-## 📚 REFERÊNCIAS
+## 📝 Referências
 
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
-- [JWT Best Practices](https://tools.ietf.org/html/rfc8725)
+- [JWT Best Practices](https://datatracker.ietf.org/doc/html/rfc8725)
+- [BCrypt](https://github.com/BcryptNet/bcrypt.net)
 - [ASP.NET Core Security](https://docs.microsoft.com/aspnet/core/security/)
-- [Angular Security Guide](https://angular.io/guide/security)
 
 ---
 
-## 🎯 CONCLUSÃO
-
-A abordagem escolhida (**Registro Aberto + JWT**) é:
-- ✅ Simples de implementar
-- ✅ Segura para o contexto
-- ✅ Adequada ao tempo do teste
-- ✅ Segue boas práticas
-- ✅ Facilita a avaliação
-
-**Não exponha credenciais. Sempre use variáveis de ambiente. Proteja o .env.**
+**⚠️ IMPORTANTE:** Esta documentação descreve as práticas implementadas no ambiente de desenvolvimento. Para produção, implemente as recomendações adicionais listadas acima.
