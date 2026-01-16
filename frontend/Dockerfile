@@ -12,7 +12,7 @@ RUN npm ci
 COPY . .
 
 # Build for production with correct base href
-RUN npm run build -- --base-href=/unisystem/
+RUN npm run build -- --configuration production --base-href=/unisystem/
 
 # Runtime stage with nginx
 FROM nginx:alpine AS final
