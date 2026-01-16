@@ -2,6 +2,8 @@
 
 Sistema fullstack desenvolvido com .NET Core 8 (backend) e Angular 19 (frontend) para gestão de usuários com autenticação JWT.
 
+**🌐 Em Produção:** http://129.153.86.168/unisystem/
+
 ---
 
 ## 📋 Índice
@@ -10,14 +12,13 @@ Sistema fullstack desenvolvido com .NET Core 8 (backend) e Angular 19 (frontend)
 - [Tecnologias](#tecnologias)
 - [Arquitetura](#arquitetura)
 - [Funcionalidades](#funcionalidades)
-- [Pré-requisitos](#pré-requisitos)
+- [URLs de Acesso](#urls-de-acesso)
 - [Instalação e Execução](#instalação-e-execução)
 - [Estrutura do Projeto](#estrutura-do-projeto)
 - [Testes](#testes)
 - [API Endpoints](#api-endpoints)
 - [Segurança](#segurança)
-- [Contribuindo](#contribuindo)
-- [Licença](#licença)
+- [Deploy](#deploy)
 
 ---
 
@@ -31,8 +32,9 @@ Unisystem é uma aplicação fullstack completa que demonstra boas práticas de 
 - **Banco de Dados**: SQLite com Entity Framework Core
 - **Validação**: FluentValidation
 - **Documentação**: Swagger/OpenAPI
+- **Deploy**: Oracle Cloud Infrastructure (OCI) com Docker e Nginx
 
-**Status**: ✅ 100% Funcional
+**Status**: ✅ 100% Funcional em Produção
 
 ---
 
@@ -55,6 +57,12 @@ Unisystem é uma aplicação fullstack completa que demonstra boas práticas de 
 - Reactive Forms
 - SCSS
 - Standalone Components
+
+### DevOps
+- Docker & Docker Compose
+- Nginx (reverse proxy)
+- Oracle Cloud Infrastructure (OCI)
+- SQLite (persistência em volume)
 
 ---
 
@@ -108,11 +116,17 @@ src/app/
 
 ---
 
-## 📋 Pré-requisitos
+## 🌐 URLs de Acesso
 
-- [.NET Core 8 SDK](https://dotnet.microsoft.com/download)
-- [Node.js 18+](https://nodejs.org/)
-- npm (incluído com Node.js)
+### Produção (OCI)
+- **Frontend**: http://129.153.86.168/unisystem/
+- **API Swagger**: http://129.153.86.168/unisystem-api/swagger/index.html
+- **API Base**: http://129.153.86.168/unisystem-api/api
+
+### Desenvolvimento Local
+- **Frontend**: http://localhost:5051
+- **API**: http://localhost:5050
+- **Swagger**: http://localhost:5050/swagger
 
 ---
 
@@ -135,12 +149,12 @@ cd src/Unisystem.API
 dotnet ef database update
 
 # Executar a API
-dotnet run
+dotnet run --urls "http://localhost:5050"
 ```
 
 A API estará disponível em:
-- **Base URL**: http://localhost:5000
-- **Swagger**: http://localhost:5000/swagger
+- **Base URL**: http://localhost:5050
+- **Swagger**: http://localhost:5050/swagger
 
 ### 3️⃣ Frontend
 
@@ -156,7 +170,7 @@ npm start
 ```
 
 O frontend estará disponível em:
-- **URL**: http://localhost:5001
+- **URL**: http://localhost:5051
 
 ---
 
@@ -172,8 +186,10 @@ Unisystem/
 ├── tests/
 │   └── Unisystem.Tests/
 ├── frontend/
-│   └── src/
-│       └── app/
+│   ├── src/app/
+│   ├── Dockerfile
+│   └── nginx.conf
+├── Dockerfile.api
 ├── docs/
 ├── README.md
 └── STATUS.md
@@ -281,73 +297,58 @@ Authorization: Bearer {token}
    - Sanitização de inputs
 
 4. **CORS**
-   - Configurado para localhost:5001
-   - Ajustar para produção
+   - Configurado para localhost:5051 e IP da OCI
+   - AllowCredentials habilitado
 
 5. **HTTPS**
-   - Recomendado para produção
-   - Configurar certificados SSL/TLS
+   - Preparado para HTTPS em produção
 
 ---
 
-## 👥 Usuários de Teste
+## 🚀 Deploy
 
-| Nome | Email | Senha |
-|------|-------|-------|
-| João Silva | joao@example.com | Senha123 |
-| Maria Santos | maria@example.com | Maria123 |
-| Pedro Oliveira | pedro@example.com | Pedro123 |
-| Ana Costa | ana@example.com | Ana123 |
+### Docker
+
+#### Build das Imagens
+
+```bash
+# API
+docker build -f Dockerfile.api -t unisystem-api .
+
+# Frontend
+docker build -f frontend/Dockerfile -t unisystem-frontend ./frontend
+```
+
+#### Executar com Docker Compose
+
+```bash
+docker-compose up -d
+```
+
+### Produção (OCI)
+
+O projeto está deployado na Oracle Cloud Infrastructure com:
+- Nginx como reverse proxy
+- Docker containers para API e Frontend
+- Volume persistente para SQLite
+- Acesso via IP público: 129.153.86.168
+
+**Configurações:**
+- API: Porta interna 5050, exposta via `/unisystem-api/`
+- Frontend: Porta interna 80, exposta via `/unisystem/`
+- Network: `projetos-net`
+- Volume: `unisystem-db-data`
 
 ---
 
 ## 📚 Documentação Adicional
 
 - [STATUS.md](STATUS.md) - Status do projeto e progresso
+- [PROJETO.md](PROJETO.md) - Especificações do projeto
 - [SECURITY.md](SECURITY.md) - Práticas de segurança
 - [TESTS_RESULTS.md](TESTS_RESULTS.md) - Resultados dos testes
 - [SystemArchitecture.md](SystemArchitecture.md) - Arquitetura detalhada
 - [TESTE_MANUAL.md](TESTE_MANUAL.md) - Guia de teste manual
-
----
-
-## 🐛 Problemas Comuns
-
-### Backend não inicia
-```bash
-# Verificar se a porta 5000 está livre
-netstat -ano | findstr :5000
-```
-
-### Frontend não compila
-```bash
-cd frontend
-rm -rf node_modules package-lock.json
-npm install
-```
-
-### Erro 401 ao listar usuários
-- Verificar se o token foi gerado no login
-- Verificar se o interceptor está configurado
-- Ver console do navegador (F12)
-
----
-
-## 🤝 Contribuindo
-
-Contribuições são bem-vindas! Para contribuir:
-
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
----
-
-## 📝 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 ---
 
@@ -359,14 +360,9 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ---
 
-## 🎉 Agradecimentos
+## 📝 Licença
 
-Projeto desenvolvido como desafio técnico para demonstrar conhecimentos em:
-- Clean Architecture
-- CQRS
-- Angular standalone components
-- Autenticação JWT
-- Testes automatizados
+Este projeto está sob a licença MIT.
 
 ---
 

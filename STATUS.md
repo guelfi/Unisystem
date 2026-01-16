@@ -1,6 +1,6 @@
 # 📊 Status do Projeto Unisystem
 
-**Última atualização:** 16/01/2026 04:30
+**Última atualização:** 16/01/2026 07:15
 
 ---
 
@@ -10,8 +10,8 @@
 |------|--------|-----------|
 | **Backend API** | ✅ Completo | 100% |
 | **Frontend Angular** | ✅ Completo | 100% |
-| **DevOps** | ⏳ Pendente | 0% |
-| **Progresso Total** | 🟢 | **80%** |
+| **DevOps & Deploy** | ✅ Completo | 100% |
+| **Progresso Total** | 🟢 | **100%** |
 
 ---
 
@@ -20,13 +20,15 @@
 ### Implementado
 - ✅ Clean Architecture (Domain, Application, Infrastructure, API)
 - ✅ CQRS com MediatR
-- ✅ JWT Authentication
+- ✅ JWT Authentication (8h de expiração)
 - ✅ Entity Framework Core + SQLite
 - ✅ FluentValidation
-- ✅ Swagger/OpenAPI
-- ✅ CORS configurado
+- ✅ Swagger/OpenAPI (habilitado em produção)
+- ✅ CORS configurado (localhost + OCI)
 - ✅ Result Pattern
 - ✅ Repository + UnitOfWork
+- ✅ UsePathBase para reverse proxy
+- ✅ BCrypt para hash de senhas
 
 ### Endpoints
 - ✅ POST `/api/auth/register` - Cadastro de usuários
@@ -37,14 +39,19 @@
 - ✅ 2 testes unitários (100% passing)
 - ✅ 4 testes de integração via curl (100% passing)
 - ✅ Validação manual via Swagger
+- ✅ Testes em produção validados
 
-### Execução
+### Execução Local
 ```bash
 cd src/Unisystem.API
-dotnet run
+dotnet run --urls "http://localhost:5050"
 ```
-**URL:** http://localhost:5000  
-**Swagger:** http://localhost:5000/swagger
+**URL Local:** http://localhost:5050  
+**Swagger Local:** http://localhost:5050/swagger
+
+### Produção
+**API:** http://129.153.86.168/unisystem-api/api  
+**Swagger:** http://129.153.86.168/unisystem-api/swagger/index.html
 
 ---
 
@@ -62,7 +69,8 @@ dotnet run
 - ✅ Routing configurado
 - ✅ Estilos globais e feedback visual
 - ✅ Testes unitários (AuthService)
-- ✅ Build de produção executado com sucesso
+- ✅ Build de produção com environment.prod.ts
+- ✅ Nginx configurado para SPA
 
 ### Rotas
 - `/` → Redireciona para `/login`
@@ -70,24 +78,53 @@ dotnet run
 - `/register` → Página de cadastro
 - `/users` → Lista de usuários (protegida por Guard)
 
-### Execução
+### Execução Local
 ```bash
 cd frontend
 npm install
 npm start
 ```
-**URL:** http://localhost:5001
+**URL Local:** http://localhost:5051
+
+### Produção
+**Frontend:** http://129.153.86.168/unisystem/
 
 ---
 
-## ⏳ DevOps - 0%
+## ✅ DevOps & Deploy - 100%
 
-### Próximas Atividades
-- ⏳ Dockerfile (Backend)
-- ⏳ Dockerfile (Frontend)
-- ⏳ docker-compose.yml
-- ⏳ Variáveis de ambiente
-- ⏳ Documentação de deploy
+### Implementado
+- ✅ Dockerfile.api (multi-stage build)
+- ✅ Dockerfile frontend (Node + Nginx)
+- ✅ docker-compose-oci-completo.yml
+- ✅ Nginx reverse proxy configurado
+- ✅ Volume persistente para SQLite (unisystem-db-data)
+- ✅ Network compartilhada (projetos-net)
+- ✅ Deploy na OCI concluído
+- ✅ Variáveis de ambiente (production)
+- ✅ FileReplacements no angular.json
+
+### Infraestrutura OCI
+
+**Servidor:** 129.153.86.168  
+**Containers:**
+- `unisystem-api` (porta interna 5050)
+- `unisystem-frontend` (porta interna 80)
+- `nginx-proxy` (porta 80, exposta)
+
+**Configurações:**
+- API path: `/unisystem-api/`
+- Frontend path: `/unisystem/`
+- Volume: `unisystem-db-data:/app/database`
+- Network: `projetos-net`
+
+### Correções Aplicadas
+1. ✅ docker-compose: Serviços na seção correta
+2. ✅ Program.cs: UsePathBase("/unisystem-api")
+3. ✅ Swagger: Endpoint configurado para reverse proxy
+4. ✅ nginx.conf: proxy_pass sem porta duplicada
+5. ✅ Dockerfile frontend: --configuration production
+6. ✅ angular.json: fileReplacements para environment.prod.ts
 
 ---
 
@@ -95,7 +132,10 @@ npm start
 
 **GitHub:** https://github.com/guelfi/Unisystem
 
-### Commits
+### Commits Recentes
+- ✅ Configurar UsePathBase e Swagger para reverse proxy
+- ✅ Adicionar --configuration production no build
+- ✅ Adicionar fileReplacements para environment.prod.ts
 - ✅ Backend completo commitado
 - ✅ Frontend completo commitado
 - ✅ Documentação atualizada
@@ -104,36 +144,26 @@ npm start
 
 ## 🧪 Como Testar
 
-### 1. Backend
-```bash
-cd src/Unisystem.API
-dotnet run
-```
+### Produção (OCI)
+1. Frontend: http://129.153.86.168/unisystem/
+2. Cadastre um novo usuário
+3. Faça login com as credenciais
+4. Visualize a lista de usuários
+5. Teste Swagger: http://129.153.86.168/unisystem-api/swagger/index.html
 
-### 2. Frontend
+### Local
 ```bash
+# Terminal 1 - Backend
+cd src/Unisystem.API
+dotnet run --urls "http://localhost:5050"
+
+# Terminal 2 - Frontend
 cd frontend
 npm install
 npm start
 ```
 
-### 3. Testar Fluxo Completo
-1. Acesse http://localhost:5001
-2. Cadastre um novo usuário
-3. Faça login com as credenciais
-4. Visualize a lista de usuários cadastrados
-5. Faça logout
-
----
-
-## 👥 Usuários de Teste (Backend)
-
-| Nome | Email | Senha |
-|------|-------|-------|
-| João Silva | joao@example.com | Senha123 |
-| Maria Santos | maria@example.com | Maria123 |
-| Pedro Oliveira | pedro@example.com | Pedro123 |
-| Ana Costa | ana@example.com | Ana123 |
+Acesse: http://localhost:5051
 
 ---
 
@@ -150,6 +180,7 @@ npm start
 - [x] Testes unitários
 - [x] Testes de integração
 - [x] Documentação
+- [x] Configuração para reverse proxy
 
 ### Frontend ✅
 - [x] Projeto Angular 19
@@ -164,14 +195,20 @@ npm start
 - [x] Estilos e UX
 - [x] Testes unitários
 - [x] Build de produção
-- [x] Documentação
+- [x] Environment.prod.ts
+- [x] FileReplacements configurado
+- [x] Nginx para SPA
 
-### DevOps ⏳
-- [ ] Dockerfile Backend
-- [ ] Dockerfile Frontend
-- [ ] docker-compose.yml
-- [ ] Configuração de variáveis
-- [ ] Documentação de deploy
+### DevOps ✅
+- [x] Dockerfile Backend
+- [x] Dockerfile Frontend
+- [x] docker-compose.yml
+- [x] Configuração de variáveis
+- [x] Deploy na OCI
+- [x] Nginx reverse proxy
+- [x] Volume persistente
+- [x] Testes em produção
+- [x] Documentação de deploy
 
 ---
 
@@ -183,8 +220,26 @@ npm start
 - ✅ Autenticação JWT funcionando
 - ✅ Guards e Interceptors implementados
 - ✅ Build de produção sem erros
+- ✅ Deploy completo na OCI
+- ✅ Nginx reverse proxy configurado
+- ✅ Containers rodando em produção
+- ✅ Persistência de dados funcionando
+- ✅ Testes em produção validados
 - ✅ Código no GitHub atualizado
 
 ---
 
-**Próximo passo:** Implementação de Dockerfiles e docker-compose para containerização da aplicação.
+## 🚀 URLs Finais
+
+| Ambiente | Tipo | URL |
+|----------|------|-----|
+| **Produção** | Frontend | http://129.153.86.168/unisystem/ |
+| **Produção** | API Swagger | http://129.153.86.168/unisystem-api/swagger/index.html |
+| **Produção** | API Base | http://129.153.86.168/unisystem-api/api |
+| **Local** | Frontend | http://localhost:5051 |
+| **Local** | API | http://localhost:5050 |
+| **Local** | Swagger | http://localhost:5050/swagger |
+
+---
+
+**Status:** ✅ Projeto 100% concluído e em produção!
