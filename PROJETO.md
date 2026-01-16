@@ -67,6 +67,12 @@ src/
 - HTTP Interceptor (envia JWT automaticamente)
 - Route Guards (protege rotas)
 - Standalone Components (sem NgModules)
+- **Responsividade Mobile-First** (breakpoints: 480px, 768px, 1024px)
+- **Toggle de visibilidade de senha** em login/register
+- **Inputs e botões touch-friendly** (min-height 48-50px)
+- **Header empilhado** em mobile (lista de usuários)
+- **Grid adaptável** (1 coluna em mobile)
+- **Meta tags mobile otimizadas** (viewport, theme-color, Apple)
 
 ## 🛠️ TECNOLOGIAS
 
@@ -159,6 +165,38 @@ bash test-api.sh
 ```
 **Resultado:** 4/4 testes passando
 
+## 📱 MELHORIAS DE RESPONSIVIDADE (v2.0)
+
+**Implementado em:** 16/01/2026
+
+### Frontend Mobile-First
+- ✅ **Meta tags mobile otimizadas** (viewport, theme-color, Apple)
+- ✅ **Base responsiva** com variáveis CSS e breakpoints
+- ✅ **Toggle de visibilidade de senha** em login/register
+- ✅ **Inputs touch-friendly** (min-height 48px, padding aumentado)
+- ✅ **Botões touch-friendly** (min-height 50px, área de toque adequada)
+- ✅ **Autocomplete configurado** em todos os campos
+- ✅ **Header empilhado** em mobile (lista de usuários)
+- ✅ **Grid adaptável** (1 coluna em mobile <480px)
+- ✅ **Cards com padding reduzido** em mobile
+- ✅ **Botão logout com ícone** em mobile (🚪)
+- ✅ **Loading spinner animado**
+- ✅ **Hover effects** apenas em dispositivos com hover
+- ✅ **Animações suaves** (fade-in, slide-in)
+- ✅ **Font-size de 16px** em mobile (evita zoom iOS)
+
+### Breakpoints Implementados
+- **Mobile:** ≤480px
+- **Mobile landscape / Tablet pequeno:** ≤768px
+- **Tablet:** ≤1024px
+- **Desktop:** ≥1025px
+
+### Documentação
+- [RESPONSIVIDADE.md](./RESPONSIVIDADE.md) - Detalhes técnicos completos
+- [DEPLOY_RESPONSIVIDADE.md](./DEPLOY_RESPONSIVIDADE.md) - Deploy na OCI
+
+---
+
 ## 📝 REQUISITOS DO DESAFIO
 
 - ✅ API .NET Core 8
@@ -175,6 +213,7 @@ bash test-api.sh
 - ✅ Docker / docker-compose
 - ✅ README com instruções
 - ✅ Deploy em produção
+- ✅ **Responsividade mobile** (adicionado)
 
 ## 🔐 SEGURANÇA
 
@@ -192,6 +231,9 @@ bash test-api.sh
 - [SECURITY.md](./SECURITY.md) - Práticas de segurança
 - [SystemArchitecture.md](./SystemArchitecture.md) - Arquitetura detalhada
 - [TESTE_MANUAL.md](./TESTE_MANUAL.md) - Guia de teste manual
+- [AnaliseProjeto.md](./AnaliseProjeto.md) - Análise completa do projeto
+- [RESPONSIVIDADE.md](./RESPONSIVIDADE.md) - Melhorias de responsividade mobile
+- [DEPLOY_RESPONSIVIDADE.md](./DEPLOY_RESPONSIVIDADE.md) - Deploy de responsividade na OCI
 - Swagger Local: http://localhost:5050/swagger
 - Swagger Produção: http://129.153.86.168/unisystem-api/swagger/index.html
 

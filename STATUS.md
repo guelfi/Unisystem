@@ -1,6 +1,7 @@
 # 📊 Status do Projeto Unisystem
 
-**Última atualização:** 16/01/2026 07:15
+**Última atualização:** 16/01/2026 16:50
+**Versão:** 2.0.0 (Mobile-First)
 
 ---
 
@@ -71,6 +72,16 @@ dotnet run --urls "http://localhost:5050"
 - ✅ Testes unitários (AuthService)
 - ✅ Build de produção com environment.prod.ts
 - ✅ Nginx configurado para SPA
+- ✅ **Responsividade Mobile-First** (v2.0)
+- ✅ **Meta tags mobile otimizadas** (viewport, theme-color, Apple)
+- ✅ **Base responsiva** com variáveis CSS
+- ✅ **Toggle de visibilidade de senha**
+- ✅ **Inputs e botões touch-friendly** (min-height 48-50px)
+- ✅ **Autocomplete configurado** em campos de formulário
+- ✅ **Header empilhado** em mobile
+- ✅ **Grid adaptável** (1 coluna em mobile)
+- ✅ **Loading spinner animado**
+- ✅ **Animações suaves** (fade-in, slide-in)
 
 ### Rotas
 - `/` → Redireciona para `/login`
@@ -88,6 +99,40 @@ npm start
 
 ### Produção
 **Frontend:** http://129.153.86.168/unisystem/
+
+---
+
+## ✅ Responsividade Mobile - 100% (v2.0)
+
+**Implementado em:** 16/01/2026 16:45
+
+### Melhorias Implementadas
+- ✅ Meta tags mobile otimizadas (viewport, theme-color, Apple)
+- ✅ Base responsiva com breakpoints (480px, 768px, 1024px)
+- ✅ Toggle de visibilidade de senha em login/register
+- ✅ Inputs touch-friendly (min-height 48px, padding aumentado)
+- ✅ Botões touch-friendly (min-height 50px)
+- ✅ Autocomplete configurado em todos os campos
+- ✅ Header empilhado em mobile (UsersListComponent)
+- ✅ Grid adaptável (1 coluna em mobile <480px)
+- ✅ Cards com padding reduzido em mobile
+- ✅ Botão logout com ícone em mobile
+- ✅ Loading spinner animado
+- ✅ Hover effects apenas em dispositivos com hover
+- ✅ Empty state melhorado com ícone
+- ✅ Animações suaves (fade-in, slide-in)
+- ✅ Font-size de 16px em mobile (evita zoom iOS)
+
+### Deploy na OCI
+- ✅ Imagem Docker reconstruída (www_unisystem-frontend)
+- ✅ Container recriado e funcionando
+- ✅ Build em produção: 87.19 kB (gzip)
+- ✅ Validação com usuário real (iPhone)
+- ✅ Outros projetos não afetados
+
+### Documentação
+- [RESPONSIVIDADE.md](./RESPONSIVIDADE.md) - Detalhes técnicos
+- [DEPLOY_RESPONSIVIDADE.md](./DEPLOY_RESPONSIVIDADE.md) - Deploy na OCI
 
 ---
 
@@ -133,6 +178,14 @@ npm start
 **GitHub:** https://github.com/guelfi/Unisystem
 
 ### Commits Recentes
+- ✅ **feat: implementar melhorias de responsividade e UI/UX mobile** (62f2e40)
+  - 7 arquivos alterados (1.040 linhas adicionadas)
+  - Toggle de senha, inputs/botões touch-friendly
+  - Meta tags mobile otimizadas
+  - Header empilhado, grid adaptável
+- ✅ **docs: adicionar documentação do deploy de responsividade na OCI** (c47bee3)
+  - Documentação completa do deployment
+  - Status de todos os containers validado
 - ✅ Configurar UsePathBase e Swagger para reverse proxy
 - ✅ Adicionar --configuration production no build
 - ✅ Adicionar fileReplacements para environment.prod.ts
