@@ -12,7 +12,7 @@ import { AuthService } from '../../core/services/auth.service';
     <div class="auth-container">
       <div class="auth-card">
         <h2>Login</h2>
-        
+
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
           <div class="form-group">
             <label for="email">Email</label>
@@ -21,6 +21,9 @@ import { AuthService } from '../../core/services/auth.service';
               type="email"
               formControlName="email"
               placeholder="seu@email.com"
+              autocorrect="off"
+              autocapitalize="off"
+              autocomplete="email"
               [class.error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
             />
             <small *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="error-message">
@@ -28,15 +31,26 @@ import { AuthService } from '../../core/services/auth.service';
             </small>
           </div>
 
-          <div class="form-group">
+          <div class="form-group password-group">
             <label for="password">Senha</label>
-            <input
-              id="password"
-              type="password"
-              formControlName="password"
-              placeholder="******"
-              [class.error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
-            />
+            <div class="password-input-wrapper">
+              <input
+                id="password"
+                [type]="showPassword ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="******"
+                autocomplete="current-password"
+                [class.error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+              />
+              <button
+                type="button"
+                class="toggle-password"
+                (click)="togglePassword()"
+                [attr.aria-label]="showPassword ? 'Ocultar senha' : 'Mostrar senha'"
+              >
+                {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+              </button>
+            </div>
             <small *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error-message">
               Senha é obrigatória
             </small>
@@ -47,7 +61,8 @@ import { AuthService } from '../../core/services/auth.service';
           </div>
 
           <button type="submit" [disabled]="loginForm.invalid || loading" class="btn-primary">
-            {{ loading ? 'Entrando...' : 'Entrar' }}
+            <span *ngIf="!loading">Entrar</span>
+            <span *ngIf="loading">Entrando...</span>
           </button>
         </form>
 
@@ -63,6 +78,7 @@ import { AuthService } from '../../core/services/auth.service';
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      min-height: 100dvh;
       padding: 20px;
       background: #f5f5f5;
     }
@@ -74,12 +90,25 @@ import { AuthService } from '../../core/services/auth.service';
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       width: 100%;
       max-width: 400px;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     h2 {
       margin: 0 0 30px;
       text-align: center;
       color: #333;
+      font-size: 1.75rem;
     }
 
     .form-group {
@@ -88,35 +117,81 @@ import { AuthService } from '../../core/services/auth.service';
 
     label {
       display: block;
-      margin-bottom: 5px;
+      margin-bottom: 8px;
       color: #555;
       font-weight: 500;
+      font-size: 0.95rem;
     }
 
     input {
       width: 100%;
-      padding: 10px;
+      padding: 12px 14px;
       border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 14px;
+      border-radius: 8px;
+      font-size: 1rem;
       box-sizing: border-box;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      min-height: 48px;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
     }
 
     input.error {
       border-color: #e74c3c;
     }
 
+    input.error:focus {
+      box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+    }
+
+    .password-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .password-input-wrapper input {
+      padding-right: 50px;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+      padding: 8px;
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+
+    .toggle-password:hover,
+    .toggle-password:active {
+      opacity: 1;
+    }
+
     .error-message {
       color: #e74c3c;
-      font-size: 12px;
-      margin-top: 5px;
+      font-size: 0.875rem;
+      margin-top: 6px;
       display: block;
     }
 
     .alert {
-      padding: 12px;
-      border-radius: 4px;
+      padding: 12px 16px;
+      border-radius: 8px;
       margin-bottom: 20px;
+      font-size: 0.9rem;
     }
 
     .alert-error {
@@ -127,39 +202,89 @@ import { AuthService } from '../../core/services/auth.service';
 
     .btn-primary {
       width: 100%;
-      padding: 12px;
+      padding: 14px 20px;
       background: #007bff;
       color: white;
       border: none;
-      border-radius: 4px;
-      font-size: 16px;
-      font-weight: 500;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: background 0.2s, transform 0.1s;
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .btn-primary:hover:not(:disabled) {
       background: #0056b3;
     }
 
+    .btn-primary:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
     .btn-primary:disabled {
       background: #ccc;
       cursor: not-allowed;
+      transform: none;
     }
 
     .auth-link {
-      margin-top: 20px;
+      margin-top: 24px;
       text-align: center;
       color: #666;
+      font-size: 0.95rem;
     }
 
     .auth-link a {
       color: #007bff;
       text-decoration: none;
+      font-weight: 600;
     }
 
     .auth-link a:hover {
       text-decoration: underline;
+    }
+
+    @media (max-width: 480px) {
+      .auth-container {
+        padding: 16px;
+      }
+
+      .auth-card {
+        padding: 24px 20px;
+      }
+
+      h2 {
+        margin: 0 0 20px;
+        font-size: 1.5rem;
+      }
+
+      input {
+        padding: 12px;
+        font-size: 16px;
+      }
+
+      .btn-primary {
+        padding: 14px;
+        font-size: 1rem;
+      }
+
+      .form-group {
+        margin-bottom: 16px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .auth-card {
+        padding: 20px 16px;
+      }
+
+      h2 {
+        font-size: 1.35rem;
+      }
     }
   `]
 })
@@ -171,12 +296,17 @@ export class LoginComponent {
   loginForm: FormGroup;
   loading = false;
   errorMessage = '';
+  showPassword = false;
 
   constructor() {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
     });
+  }
+
+  togglePassword(): void {
+    this.showPassword = !this.showPassword;
   }
 
   onSubmit(): void {
