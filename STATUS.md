@@ -1,7 +1,15 @@
 # 📊 Status do Projeto Unisystem
 
-**Última atualização:** 16/01/2026 16:50
+**Última atualização:** 29/01/2026 15:21
 **Versão:** 2.0.0 (Mobile-First)
+**Repositório:** 🟢 Sincronizado (local ↔ GitHub)  
+**Último commit:** 78aecc7 (16/01/2026)
+
+### 🐳 Containers OCI
+- unisystem-api: ✅ Up 13 days (healthy)
+- unisystem-frontend: ✅ Up 12 days
+**Repositório:** 🟢 Sincronizado (local ↔ GitHub)  
+**Último commit:** 78aecc7 (16/01/2026)
 
 ---
 
