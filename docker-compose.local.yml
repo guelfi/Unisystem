@@ -1,0 +1,36 @@
+services:
+  unisystem-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: unisystem-local-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Jwt__Secret=${UNISYSTEM_JWT_SECRET}
+    volumes:
+      - unisystem-local-db-data:/app/database
+    networks:
+      - unisystem-net
+      - projetos-local
+    restart: unless-stopped
+
+  unisystem-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: unisystem-local-frontend
+    networks:
+      - unisystem-net
+      - projetos-local
+    depends_on:
+      - unisystem-api
+    restart: unless-stopped
+
+networks:
+  unisystem-net:
+    driver: bridge
+  projetos-local:
+    external: true
+
+volumes:
+  unisystem-local-db-data:

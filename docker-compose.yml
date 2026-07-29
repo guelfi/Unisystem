@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  unisystem-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: unisystem-api
+    ports:
+      - "6020:5050"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - Jwt__Secret=${UNISYSTEM_JWT_SECRET}
+    volumes:
+      - unisystem-db-data:/app/database
+    networks:
+      - unisystem-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "test -d /app || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  unisystem-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: unisystem-frontend
+    ports:
+      - "6025:80"
+    depends_on:
+      - unisystem-api
+    networks:
+      - unisystem-net
+    restart: unless-stopped
+
+networks:
+  unisystem-net:
+    driver: bridge
+
+volumes:
+  unisystem-db-data:

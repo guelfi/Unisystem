@@ -51,7 +51,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5051", "http://129.153.86.168")
+        policy.WithOrigins("http://localhost:5051", "http://129.153.86.168", "http://localhost", "http://192.168.15.119")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -100,13 +100,12 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
-// Configure path base for reverse proxy
-app.UsePathBase("/unisystem-api");
+// Reverse proxy already strips the /unisystem-api prefix before forwarding, so no UsePathBase here.
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/unisystem-api/swagger/v1/swagger.json", "Unisystem API v1");
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Unisystem API v1");
     c.RoutePrefix = "swagger";
 });
 
