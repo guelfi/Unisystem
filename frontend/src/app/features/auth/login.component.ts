@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
@@ -7,12 +7,12 @@ import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [ReactiveFormsModule, RouterModule],
   template: `
     <div class="auth-container">
       <div class="auth-card">
         <h2>Login</h2>
-
+    
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
           <div class="form-group">
             <label for="email">Email</label>
@@ -25,12 +25,14 @@ import { AuthService } from '../../core/services/auth.service';
               autocapitalize="off"
               autocomplete="email"
               [class.error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
-            />
-            <small *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="error-message">
-              Email inválido
-            </small>
+              />
+            @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+              <small class="error-message">
+                Email inválido
+              </small>
+            }
           </div>
-
+    
           <div class="form-group password-group">
             <label for="password">Senha</label>
             <div class="password-input-wrapper">
@@ -41,37 +43,45 @@ import { AuthService } from '../../core/services/auth.service';
                 placeholder="******"
                 autocomplete="current-password"
                 [class.error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
-              />
+                />
               <button
                 type="button"
                 class="toggle-password"
                 (click)="togglePassword()"
                 [attr.aria-label]="showPassword ? 'Ocultar senha' : 'Mostrar senha'"
-              >
+                >
                 {{ showPassword ? '👁️' : '👁️‍🗨️' }}
               </button>
             </div>
-            <small *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error-message">
-              Senha é obrigatória
-            </small>
+            @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+              <small class="error-message">
+                Senha é obrigatória
+              </small>
+            }
           </div>
-
-          <div *ngIf="errorMessage" class="alert alert-error">
-            {{ errorMessage }}
-          </div>
-
+    
+          @if (errorMessage) {
+            <div class="alert alert-error">
+              {{ errorMessage }}
+            </div>
+          }
+    
           <button type="submit" [disabled]="loginForm.invalid || loading" class="btn-primary">
-            <span *ngIf="!loading">Entrar</span>
-            <span *ngIf="loading">Entrando...</span>
+            @if (!loading) {
+              <span>Entrar</span>
+            }
+            @if (loading) {
+              <span>Entrando...</span>
+            }
           </button>
         </form>
-
+    
         <p class="auth-link">
           Não tem conta? <a routerLink="/register">Cadastre-se</a>
         </p>
       </div>
     </div>
-  `,
+    `,
   styles: [`
     .auth-container {
       display: flex;

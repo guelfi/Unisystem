@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { UsersService } from './users.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -8,7 +8,7 @@ import { User } from '../../core/models';
 @Component({
   selector: 'app-users-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="users-container">
       <div class="header">
@@ -21,30 +21,40 @@ import { User } from '../../core/models';
           </button>
         </div>
       </div>
-
-      <div *ngIf="loading" class="loading">
-        <div class="spinner"></div>
-        <p>Carregando usuários...</p>
-      </div>
-
-      <div *ngIf="errorMessage" class="alert alert-error">
-        {{ errorMessage }}
-      </div>
-
-      <div *ngIf="!loading && users.length > 0" class="users-grid">
-        <div *ngFor="let user of users" class="user-card">
-          <div class="user-icon">👤</div>
-          <h3>{{ user.name }}</h3>
-          <p class="user-email">{{ user.email }}</p>
+    
+      @if (loading) {
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Carregando usuários...</p>
         </div>
-      </div>
-
-      <div *ngIf="!loading && users.length === 0 && !errorMessage" class="empty-state">
-        <div class="empty-icon">📭</div>
-        <p>Nenhum usuário cadastrado ainda.</p>
-      </div>
+      }
+    
+      @if (errorMessage) {
+        <div class="alert alert-error">
+          {{ errorMessage }}
+        </div>
+      }
+    
+      @if (!loading && users.length > 0) {
+        <div class="users-grid">
+          @for (user of users; track user) {
+            <div class="user-card">
+              <div class="user-icon">👤</div>
+              <h3>{{ user.name }}</h3>
+              <p class="user-email">{{ user.email }}</p>
+            </div>
+          }
+        </div>
+      }
+    
+      @if (!loading && users.length === 0 && !errorMessage) {
+        <div class="empty-state">
+          <div class="empty-icon">📭</div>
+          <p>Nenhum usuário cadastrado ainda.</p>
+        </div>
+      }
     </div>
-  `,
+    `,
   styles: [`
     .users-container {
       padding: 20px;
