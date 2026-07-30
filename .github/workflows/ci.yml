@@ -84,7 +84,7 @@ jobs:
       - name: Audit npm dependencies
         working-directory: frontend
         run: >
-          npm audit --audit-level=high --json > /tmp/audit.json;
+          npm audit --audit-level=high --json > /tmp/audit.json || true;
           node -e '
             const r = require("/tmp/audit.json");
             const allowed = new Set([
