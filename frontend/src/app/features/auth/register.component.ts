@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
@@ -7,12 +7,12 @@ import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [ReactiveFormsModule, RouterModule],
   template: `
     <div class="auth-container">
       <div class="auth-card">
         <h2>Cadastro</h2>
-
+    
         <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
           <div class="form-group">
             <label for="name">Nome</label>
@@ -24,12 +24,14 @@ import { AuthService } from '../../core/services/auth.service';
               autocapitalize="words"
               autocomplete="name"
               [class.error]="registerForm.get('name')?.invalid && registerForm.get('name')?.touched"
-            />
-            <small *ngIf="registerForm.get('name')?.invalid && registerForm.get('name')?.touched" class="error-message">
-              Nome é obrigatório
-            </small>
+              />
+            @if (registerForm.get('name')?.invalid && registerForm.get('name')?.touched) {
+              <small class="error-message">
+                Nome é obrigatório
+              </small>
+            }
           </div>
-
+    
           <div class="form-group">
             <label for="email">Email</label>
             <input
@@ -41,12 +43,14 @@ import { AuthService } from '../../core/services/auth.service';
               autocapitalize="off"
               autocomplete="email"
               [class.error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
-            />
-            <small *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="error-message">
-              Email inválido
-            </small>
+              />
+            @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+              <small class="error-message">
+                Email inválido
+              </small>
+            }
           </div>
-
+    
           <div class="form-group password-group">
             <label for="password">Senha</label>
             <div class="password-input-wrapper">
@@ -57,41 +61,51 @@ import { AuthService } from '../../core/services/auth.service';
                 placeholder="Mínimo 6 caracteres"
                 autocomplete="new-password"
                 [class.error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
-              />
+                />
               <button
                 type="button"
                 class="toggle-password"
                 (click)="togglePassword()"
                 [attr.aria-label]="showPassword ? 'Ocultar senha' : 'Mostrar senha'"
-              >
+                >
                 {{ showPassword ? '👁️' : '👁️‍🗨️' }}
               </button>
             </div>
-            <small *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="error-message">
-              Senha deve ter no mínimo 6 caracteres
-            </small>
+            @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+              <small class="error-message">
+                Senha deve ter no mínimo 6 caracteres
+              </small>
+            }
           </div>
-
-          <div *ngIf="errorMessage" class="alert alert-error">
-            {{ errorMessage }}
-          </div>
-
-          <div *ngIf="successMessage" class="alert alert-success">
-            {{ successMessage }}
-          </div>
-
+    
+          @if (errorMessage) {
+            <div class="alert alert-error">
+              {{ errorMessage }}
+            </div>
+          }
+    
+          @if (successMessage) {
+            <div class="alert alert-success">
+              {{ successMessage }}
+            </div>
+          }
+    
           <button type="submit" [disabled]="registerForm.invalid || loading" class="btn-primary">
-            <span *ngIf="!loading">Cadastrar</span>
-            <span *ngIf="loading">Cadastrando...</span>
+            @if (!loading) {
+              <span>Cadastrar</span>
+            }
+            @if (loading) {
+              <span>Cadastrando...</span>
+            }
           </button>
         </form>
-
+    
         <p class="auth-link">
           Já tem conta? <a routerLink="/login">Faça login</a>
         </p>
       </div>
     </div>
-  `,
+    `,
   styles: [`
     .auth-container {
       display: flex;
