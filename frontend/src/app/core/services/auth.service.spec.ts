@@ -36,7 +36,7 @@ describe('AuthService', () => {
     const mockResponse: LoginResponse = {
       token: 'fake-jwt-token',
       user: {
-        id: 1,
+        id: '1',
         name: 'Test User',
         email: 'test@example.com'
       }
