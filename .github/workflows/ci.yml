@@ -92,13 +92,16 @@ jobs:
               "@angular/build",
               "brace-expansion",
               "glob",
+              "image-size",
               "karma",
               "karma-coverage",
               "karma-jasmine",
               "karma-jasmine-html-reporter",
+              "less",
               "minimatch",
               "postcss",
-              "rimraf"
+              "rimraf",
+              "undici"
             ]);
             const unexpected = Object.entries(r.vulnerabilities || {})
               .filter(([name, v]) => v.severity === "high" || v.severity === "critical")
