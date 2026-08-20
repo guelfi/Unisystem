@@ -1,6 +1,6 @@
 # 🏢 Unisystem - Sistema de Gestão de Usuários
 
-Sistema fullstack desenvolvido com .NET Core 8 (backend) e Angular 19 (frontend) para gestão de usuários com autenticação JWT.
+Sistema fullstack desenvolvido com .NET Core 8 (backend) e Angular 21 (frontend) para gestão de usuários com autenticação JWT.
 
 **🌐 Em Produção:** http://129.153.86.168/unisystem/
 
@@ -27,7 +27,7 @@ Sistema fullstack desenvolvido com .NET Core 8 (backend) e Angular 19 (frontend)
 Unisystem é uma aplicação fullstack completa que demonstra boas práticas de desenvolvimento com:
 
 - **Backend**: API REST em .NET Core 8 com Clean Architecture e CQRS
-- **Frontend**: SPA em Angular 19 com standalone components
+- **Frontend**: SPA em Angular 21 com standalone components
 - **Autenticação**: JWT (JSON Web Tokens)
 - **Banco de Dados**: SQLite com Entity Framework Core
 - **Validação**: FluentValidation
@@ -51,7 +51,7 @@ Unisystem é uma aplicação fullstack completa que demonstra boas práticas de 
 - xUnit (testes)
 
 ### Frontend
-- Angular 19
+- Angular 21
 - TypeScript 5.6
 - RxJS 7.8
 - Reactive Forms
@@ -283,7 +283,7 @@ Authorization: Bearer {token}
 ### Práticas Implementadas
 
 1. **Senhas**
-   - Hash com BCrypt (custo: 12)
+   - Hash com BCrypt (custo: 11)
    - Nunca armazenadas em texto puro
 
 2. **JWT**

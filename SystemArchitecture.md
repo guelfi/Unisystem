@@ -46,7 +46,7 @@
 ## 🛠️ Tecnologias Utilizadas
 
 ### Frontend
-- **Angular 19** - Framework principal para interface
+- **Angular 21** - Framework principal para interface
 - **TypeScript 5.9.3** - Tipagem estática para maior segurança
 - **Angular Animations** - Animações nativas do Angular
 - **HttpClient** - Cliente HTTP para consumo de API

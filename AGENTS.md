@@ -4,10 +4,10 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 
 ## Project Overview
 
-**Unisystem** is a fullstack user management system built with **.NET Core 8** (backend) and **Angular 19** (frontend) demonstrating Clean Architecture, CQRS pattern, and JWT authentication. The project is **100% complete and deployed to production** on Oracle Cloud Infrastructure (OCI).
+**Unisystem** is a fullstack user management system built with **.NET Core 8** (backend) and **Angular 21** (frontend) demonstrating Clean Architecture, CQRS pattern, and JWT authentication. The project is **100% complete and deployed to production** on Oracle Cloud Infrastructure (OCI).
 
 **Production:** http://129.153.86.168/unisystem/  
-**Stack:** .NET Core 8 + Angular 19 + SQLite + Docker + Nginx
+**Stack:** .NET Core 8 + Angular 21 + SQLite + Docker + Nginx
 
 ---
 
@@ -42,7 +42,7 @@ dotnet build src/Unisystem.sln
 
 **Important:** Always run the API from `src/Unisystem.API` directory to ensure correct working directory for SQLite database path resolution.
 
-### Frontend (Angular 19)
+### Frontend (Angular 21)
 
 ```bash
 # Navigate to frontend directory
@@ -121,7 +121,7 @@ The backend follows **Clean Architecture** with clear separation of concerns:
 src/
 ├── Unisystem.Domain/          # Core business entities and interfaces
 │   ├── Entities/             # User entity
-│   └── Interfaces/           # IRepository, IUnitOfWork, IJwtTokenGenerator
+│   └── Interfaces/           # IRepository, IUnitOfWork, IJwtService
 │
 ├── Unisystem.Application/     # Use cases (Commands & Queries)
 │   ├── Features/
@@ -133,7 +133,7 @@ src/
 ├── Unisystem.Infrastructure/  # External dependencies implementation
 │   ├── Data/                # ApplicationDbContext (EF Core)
 │   ├── Repositories/        # UserRepository, UnitOfWork
-│   ├── Services/            # JwtTokenGenerator
+│   ├── Services/            # JwtService
 │   └── Migrations/          # EF Core migrations
 │
 └── Unisystem.API/            # Entry point
@@ -147,15 +147,15 @@ src/
 - **Dependency Injection**: All dependencies injected via DI container
 
 **Important Backend Details:**
-- **SQLite** database located at `src/Unisystem.Infrastructure/Database/unisystem.db` (development)
-- **JWT tokens** expire after 8 hours (configured in `JwtTokenGenerator`)
-- **BCrypt** cost factor is 12 for password hashing
-- **UsePathBase("/unisystem-api")** in `Program.cs` enables reverse proxy support
+- **SQLite** database: the connection string in `src/Unisystem.API/appsettings.json` is `Data Source=unisystem.db`, so the file is created in the API's working directory (`src/Unisystem.API` when running locally)
+- **JWT tokens** expire after 8 hours (configured in `JwtService`)
+- **BCrypt** cost factor is 11 for password hashing (BCrypt.Net-Next default)
+- **Reverse proxy support**: there is no `UsePathBase` in `Program.cs`; the Nginx reverse proxy strips the `/unisystem-api` prefix before forwarding requests to the API
 - Swagger is **enabled in production** at `/unisystem-api/swagger/index.html`
 
 ### Frontend - Feature-based with Standalone Components
 
-Angular 19 with **standalone components** (no NgModules):
+Angular 21 with **standalone components** (no NgModules):
 
 ```
 frontend/src/app/
@@ -176,7 +176,7 @@ frontend/src/app/
 - **Auth Guard**: Protects `/users` route, redirects unauthenticated users to `/login`
 - **Reactive Forms**: Used in login/register with built-in validation
 - **Mobile-First**: Responsive design with breakpoints at 480px, 768px, 1024px
-- **Environment Files**: `environment.ts` (dev) and `environment.prod.ts` (production)
+- **Environment Files**: `environment.ts` (dev) and `environment.prod.ts` (production) are identical — both use the relative `apiUrl: '/unisystem-api/api'`, and there is no dev proxy configured in `angular.json`
 - **FileReplacements**: Configured in `angular.json` to swap environments on production build
 
 ### Mobile-First Responsive Design (v2.0)
@@ -196,7 +196,7 @@ frontend/src/app/
 ## Database
 
 **Type:** SQLite  
-**Location (dev):** `src/Unisystem.Infrastructure/Database/unisystem.db`  
+**Location (dev):** created in the API's working directory (`src/Unisystem.API`) — the connection string is `Data Source=unisystem.db`  
 **Location (prod):** Docker volume `unisystem-db-data:/app/database`
 
 **Schema:**
@@ -210,7 +210,7 @@ frontend/src/app/
 
 1. **Register**: `POST /api/auth/register` with name, email, password
    - Password validated (FluentValidation)
-   - Password hashed with BCrypt (cost 12)
+   - Password hashed with BCrypt (cost 11)
    - User saved to database
    
 2. **Login**: `POST /api/auth/login` with email, password
@@ -245,7 +245,7 @@ frontend/src/app/
 - API: `/unisystem-api/` → `unisystem-api:5050`
 
 **Critical Configuration:**
-- `Program.cs`: `app.UsePathBase("/unisystem-api")` enables reverse proxy routing
+- `Program.cs`: there is no `UsePathBase` — the Nginx reverse proxy strips the `/unisystem-api` prefix before forwarding requests to the API
 - `nginx.conf`: Configured for SPA routing (all routes return `index.html`)
 - `environment.prod.ts`: API URL is `/unisystem-api/api` (relative path)
 
@@ -297,7 +297,7 @@ ASPNETCORE_ENVIRONMENT=Development dotnet run --urls "http://localhost:5050"
 ### SQLite Database Not Found
 **Cause:** API running from wrong directory
 
-**Solution:** Always run from `src/Unisystem.API` directory. The database path in `appsettings.json` is relative: `"Data Source=../Unisystem.Infrastructure/Database/unisystem.db"`
+**Solution:** Always run from `src/Unisystem.API` directory. The database path in `appsettings.json` is relative: `"Data Source=unisystem.db"` — the file is created in the API's working directory
 
 ### Frontend Can't Connect to API
 **Local:** Check API is running on port 5050  
@@ -342,7 +342,7 @@ All projects share:
 
 - `src/Unisystem.API/Program.cs` - API entry point, DI configuration
 - `src/Unisystem.Infrastructure/Data/ApplicationDbContext.cs` - EF Core context
-- `src/Unisystem.Infrastructure/Services/JwtTokenGenerator.cs` - JWT generation
+- `src/Unisystem.Infrastructure/Services/JwtService.cs` - JWT generation
 - `frontend/src/app/core/services/auth.service.ts` - Authentication service
 - `frontend/src/app/core/interceptors/auth.interceptor.ts` - Auto JWT injection
 - `frontend/src/environments/environment.prod.ts` - Production API URL

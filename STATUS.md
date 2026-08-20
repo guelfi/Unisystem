@@ -36,7 +36,7 @@
 - ✅ CORS configurado (localhost + OCI)
 - ✅ Result Pattern
 - ✅ Repository + UnitOfWork
-- ✅ UsePathBase para reverse proxy
+- ✅ Reverse proxy Nginx remove o prefixo `/unisystem-api` antes de encaminhar à API
 - ✅ BCrypt para hash de senhas
 
 ### Endpoints
@@ -64,10 +64,10 @@ dotnet run --urls "http://localhost:5050"
 
 ---
 
-## ✅ Frontend Angular 19 - 100%
+## ✅ Frontend Angular 21 - 100%
 
 ### Implementado
-- ✅ Projeto Angular 19 com standalone components
+- ✅ Projeto Angular 21 com standalone components
 - ✅ Reactive Forms com validação
 - ✅ AuthService com JWT
 - ✅ HTTP Interceptor (auto adiciona token)
@@ -173,7 +173,7 @@ npm start
 
 ### Correções Aplicadas
 1. ✅ docker-compose: Serviços na seção correta
-2. ✅ Program.cs: UsePathBase("/unisystem-api")
+2. ✅ Reverse proxy Nginx remove o prefixo `/unisystem-api` antes de encaminhar à API (não há UsePathBase no Program.cs)
 3. ✅ Swagger: Endpoint configurado para reverse proxy
 4. ✅ nginx.conf: proxy_pass sem porta duplicada
 5. ✅ Dockerfile frontend: --configuration production
@@ -194,7 +194,7 @@ npm start
 - ✅ **docs: adicionar documentação do deploy de responsividade na OCI** (c47bee3)
   - Documentação completa do deployment
   - Status de todos os containers validado
-- ✅ Configurar UsePathBase e Swagger para reverse proxy
+- ✅ Configurar reverse proxy Nginx (remove o prefixo `/unisystem-api`) e Swagger
 - ✅ Adicionar --configuration production no build
 - ✅ Adicionar fileReplacements para environment.prod.ts
 - ✅ Backend completo commitado
@@ -244,7 +244,7 @@ Acesse: http://localhost:5051
 - [x] Configuração para reverse proxy
 
 ### Frontend ✅
-- [x] Projeto Angular 19
+- [x] Projeto Angular 21
 - [x] Models e interfaces
 - [x] AuthService
 - [x] HTTP Interceptor

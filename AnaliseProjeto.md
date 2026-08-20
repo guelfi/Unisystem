@@ -35,7 +35,7 @@
 - Swagger/OpenAPI
 
 ### Frontend
-- Angular 19 (Standalone Components)
+- Angular 21 (Standalone Components)
 - TypeScript 5.6
 - RxJS 7.8
 - Reactive Forms
@@ -66,7 +66,7 @@
 
 ## 🔐 Segurança Implementada
 
-- ✅ BCrypt (custo 12) para senhas
+- ✅ BCrypt (custo 11) para senhas
 - ✅ JWT com expiração 8h
 - ✅ FluentValidation (backend)
 - ✅ Reactive Forms (frontend)
@@ -105,7 +105,7 @@
 1. **Arquitetura limpa** com separação clara de responsabilidades
 2. **CQRS** com MediatR para desacoplamento
 3. **Result Pattern** para tratamento de erros
-4. **Standalone Components** (Angular 19)
+4. **Standalone Components** (Angular 21)
 5. **Docker multi-stage** otimizado
 6. **Documentação completa** (README, STATUS, SECURITY, etc.)
 

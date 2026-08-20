@@ -1,6 +1,6 @@
 # 🎓 UNISYSTEM - Sistema de Gestão de Usuários
 
-**Stack:** .NET Core 8 API + Angular 19  
+**Stack:** .NET Core 8 API + Angular 21  
 **Branch:** `main`  
 **Banco:** SQLite (unisystem.db)  
 **Repo:** https://github.com/guelfi/Unisystem.git  
@@ -27,7 +27,7 @@ Projeto desenvolvido como **Teste Prático para Desenvolvedor Fullstack**, demon
 
 ## 🗄️ BANCO DE DADOS
 
-**SQLite:** `src/Unisystem.Infrastructure/Database/unisystem.db`  
+**SQLite:** a connection string em `src/Unisystem.API/appsettings.json` é `Data Source=unisystem.db` — o arquivo é criado no working directory de onde a API roda (`src/Unisystem.API`)  
 **Volume Produção:** `unisystem-db-data:/app/database`
 
 ⚠️ **IMPORTANTE:** Unisystem usa SQLite para simplicidade do teste.
@@ -43,7 +43,7 @@ src/
 └── Unisystem.Infrastructure/# EF Core, Repositories, JWT
 ```
 
-### Frontend (Angular 19 - Standalone Components)
+### Frontend (Angular 21 - Standalone Components)
 ```
 src/
 ├── app/
@@ -87,7 +87,7 @@ src/
 - Swashbuckle (Swagger)
 
 ### Frontend
-- Angular 19 (Standalone Components)
+- Angular 21 (Standalone Components)
 - TypeScript 5.6
 - RxJS 7.8
 - Angular Router
@@ -200,13 +200,13 @@ bash test-api.sh
 ## 📝 REQUISITOS DO DESAFIO
 
 - ✅ API .NET Core 8
-- ✅ Frontend Angular 19
+- ✅ Frontend Angular 21
 - ✅ Banco de dados relacional (SQLite)
 - ✅ EF Core
 - ✅ Arquitetura limpa
 - ✅ CQRS
 - ✅ JWT Authentication
-- ✅ Standalone Components (Angular 19)
+- ✅ Standalone Components (Angular 21)
 - ✅ HTTP Interceptors
 - ✅ Route Guards
 - ✅ Testes automatizados
@@ -217,7 +217,7 @@ bash test-api.sh
 
 ## 🔐 SEGURANÇA
 
-- BCrypt para hash de senhas (custo 12)
+- BCrypt para hash de senhas (custo 11)
 - JWT com expiração de 8 horas
 - FluentValidation em todos os comandos
 - CORS configurado (localhost + OCI)

@@ -2,6 +2,8 @@
 
 Este documento descreve as práticas de segurança implementadas no projeto Unisystem.
 
+> ⚠️ Para os pontos de segurança **pendentes** (vulnerabilidades conhecidas), consulte o [Relatório de Vulnerabilidades](RELATORIO_VULNERABILIDADES.md).
+
 ---
 
 ## 🛡️ Práticas Implementadas

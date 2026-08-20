@@ -1,10 +1,10 @@
-# Frontend Unisystem - Angular 19
+# Frontend Unisystem - Angular 21
 
-Frontend da aplicação Unisystem desenvolvido com Angular 19 standalone components.
+Frontend da aplicação Unisystem desenvolvido com Angular 21 standalone components.
 
 ## 🚀 Tecnologias
 
-- Angular 19
+- Angular 21
 - TypeScript
 - SCSS
 - Reactive Forms
