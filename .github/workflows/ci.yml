@@ -113,6 +113,14 @@ jobs:
             console.log("OK: apenas vulnerabilidades conhecidas em devDependencies de build/test (karma, postcss, webpack tooling), sem fix publicado ainda na linha estavel (Angular 21 LTS). Nenhuma chega ao bundle de producao.");
           '
 
+      - name: Save dependency audit diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dependency-audit
+          path: /tmp/audit.json
+          retention-days: 3
+
   docker-build:
     name: Docker Build Test
     runs-on: ubuntu-latest
