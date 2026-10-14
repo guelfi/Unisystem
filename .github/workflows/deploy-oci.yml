@@ -19,6 +19,9 @@ concurrency:
 jobs:
   validate:
     name: Validate deploy inputs
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch' ||
+          (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main') }}
     runs-on: ubuntu-latest
     steps:
       - name: Validate branch and confirmation
@@ -56,6 +59,10 @@ jobs:
     environment: production
 
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
       - name: Setup SSH agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
@@ -68,13 +75,15 @@ jobs:
         env:
           OCI_HOST: ${{ secrets.OCI_HOST }}
           OCI_USER: ${{ secrets.OCI_USER }}
+          DEPLOY_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
         run: |
-          ssh -o StrictHostKeyChecking=no ${OCI_USER}@${OCI_HOST} 'bash -s' << 'EOF'
-            set -e
+          ssh -o StrictHostKeyChecking=no ${OCI_USER}@${OCI_HOST} "DEPLOY_SHA='$DEPLOY_SHA' bash -s" << 'EOF'
+            set -euo pipefail
             cd /var/www/Unisystem
             git fetch origin
-            git reset --hard origin/main
-            sudo docker compose up -d --build unisystem-api unisystem-frontend
+            test "$(git rev-parse origin/main)" = "$DEPLOY_SHA"
+            git reset --hard "$DEPLOY_SHA"
+            bash scripts/deploy-oci-project.sh
           EOF
 
       - name: Verify deployment
@@ -91,3 +100,5 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${OCI_USER}@${OCI_HOST} "curl --fail --silent --show-error -o /dev/null -w 'HTTP %{http_code}\n' http://129.153.86.168/unisystem-api/swagger/v1/swagger.json"
           echo "=== Deployed commit (server) ==="
           ssh -o StrictHostKeyChecking=no ${OCI_USER}@${OCI_HOST} "cd /var/www/Unisystem && git log -1 --oneline"
+          curl --fail --silent --show-error --retry 4 --retry-delay 5 --max-time 30 -o /dev/null https://unisystem.guelfi.com.br/
+          curl --fail --silent --show-error --retry 4 --retry-delay 5 --max-time 30 -o /dev/null https://unisystem.guelfi.com.br/swagger/v1/swagger.json

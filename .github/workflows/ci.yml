@@ -124,5 +124,12 @@ jobs:
         run: docker build -f Dockerfile.api -t unisystem-api:test .
 
       - name: Build Frontend Docker image
-        run: docker build -t unisystem-frontend:test .
+        run: docker build --build-arg BASE_HREF=/ --build-arg API_URL=/api -t unisystem-frontend:test .
         working-directory: frontend
+
+      - name: Verify subdomain build contract
+        run: |
+          docker run --rm unisystem-frontend:test sh -c '
+            grep -q '\''<base href="/">'\'' /usr/share/nginx/html/index.html
+            ! grep -R -q /unisystem-api/api /usr/share/nginx/html
+          '

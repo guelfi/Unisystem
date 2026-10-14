@@ -12,7 +12,10 @@ RUN npm ci
 COPY . .
 
 # Build for production with correct base href
-RUN npm run build -- --configuration production --base-href=/unisystem/
+ARG BASE_HREF=/unisystem/
+ARG API_URL=/unisystem-api/api
+RUN node -e 'const fs=require("fs"); fs.writeFileSync("src/environments/environment.prod.ts", "export const environment = " + JSON.stringify({production:true,apiUrl:process.env.API_URL}) + ";\n")'
+RUN npm run build -- --configuration production --base-href="$BASE_HREF"
 
 # Runtime stage with nginx
 FROM nginx:alpine AS final
