@@ -83,35 +83,18 @@ jobs:
 
       - name: Audit npm dependencies
         working-directory: frontend
-        run: >
-          npm audit --audit-level=high --json > /tmp/audit.json || true;
-          node -e '
-            const r = require("/tmp/audit.json");
-            const allowed = new Set([
-              "@angular-devkit/build-angular",
-              "@angular/build",
-              "brace-expansion",
-              "glob",
-              "image-size",
-              "karma",
-              "karma-coverage",
-              "karma-jasmine",
-              "karma-jasmine-html-reporter",
-              "less",
-              "minimatch",
-              "postcss",
-              "rimraf",
-              "undici"
-            ]);
-            const unexpected = Object.entries(r.vulnerabilities || {})
-              .filter(([name, v]) => v.severity === "high" || v.severity === "critical")
-              .filter(([name]) => !allowed.has(name));
-            if (unexpected.length > 0) {
-              console.error("Vulnerabilidades inesperadas:", unexpected.map(([n]) => n).join(", "));
-              process.exit(1);
-            }
-            console.log("OK: apenas vulnerabilidades conhecidas em devDependencies de build/test (karma, postcss, webpack tooling), sem fix publicado ainda na linha estavel (Angular 21 LTS). Nenhuma chega ao bundle de producao.");
-          '
+        run: |
+          npm audit --json > /tmp/audit.json || true
+          node --test scripts/check-dependency-audit.test.cjs
+          node scripts/check-dependency-audit.cjs /tmp/audit.json package-lock.json
+
+      - name: Save dependency audit diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dependency-audit
+          path: /tmp/audit.json
+          retention-days: 3
 
   docker-build:
     name: Docker Build Test
@@ -124,5 +107,12 @@ jobs:
         run: docker build -f Dockerfile.api -t unisystem-api:test .
 
       - name: Build Frontend Docker image
-        run: docker build -t unisystem-frontend:test .
+        run: docker build --build-arg BASE_HREF=/ --build-arg API_URL=/api -t unisystem-frontend:test .
         working-directory: frontend
+
+      - name: Verify subdomain build contract
+        run: |
+          docker run --rm unisystem-frontend:test sh -c '
+            grep -q '\''<base href="/">'\'' /usr/share/nginx/html/index.html
+            ! grep -R -q /unisystem-api/api /usr/share/nginx/html
+          '

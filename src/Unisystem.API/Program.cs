@@ -51,7 +51,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5051", "http://129.153.86.168", "http://localhost", "http://192.168.15.119")
+        policy.WithOrigins("http://localhost:5051", "http://129.153.86.168", "http://localhost", "http://192.168.15.119", "https://unisystem.guelfi.com.br")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
