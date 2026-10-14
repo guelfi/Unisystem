@@ -1,6 +1,6 @@
 """Preserve the current SQLite database and JWT; patch only public build settings."""
 from pathlib import Path
-import subprocess,json,sqlite3,shutil,os,datetime
+import subprocess,json,sqlite3,shutil,os,datetime,sys
 assert os.geteuid()==0,'Run with sudo'
 root=Path('/var/www/Unisystem')
 def inspect(name):return json.loads(subprocess.check_output(['docker','inspect',name]))[0]
@@ -14,6 +14,9 @@ current=dict(v.split('=',1) for v in api['Config']['Env'] if '=' in v)
 jwt=current.get('Jwt__Secret');assert jwt,'Existing JWT required'
 values=dict(line.split('=',1) for line in original.splitlines() if '=' in line and not line.lstrip().startswith('#'))
 assert values.get('UNISYSTEM_JWT_SECRET','').strip().strip('"\u0027')==jwt,'Existing private environment must preserve JWT'
+if '--check' in sys.argv:
+ print('Existing project, SQLite volume/file and JWT environment validated')
+ raise SystemExit(0)
 stamp=datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
 backup=Path('/var/backups/unisystem')/('workflow-cutover-'+stamp);backup.mkdir(parents=True,mode=0o700)
 shutil.copy2(env,backup/'env-before');(backup/'env-before').chmod(0o600)
